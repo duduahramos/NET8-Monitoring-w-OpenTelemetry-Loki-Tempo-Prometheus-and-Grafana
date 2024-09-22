@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <form method="post">
+        <div class="form-group">
+            @* <label for="productName">Enter your product name:</label> *@
+            <input type="text" class="form-control" id="productName" name="productName" placeholder="Enter product name to create it.">
+        </div>
+        <button type="submit" class="btn btn-primary">Create product</button>
+    </form>
+    @if (ViewData["Message"] != null)
+    {
+        <p class="mt-3">@ViewData["Message"]</p>
+    }
+</div>
