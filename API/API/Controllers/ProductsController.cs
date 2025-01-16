@@ -2,6 +2,7 @@
 using CentralizedLoggingAndTracingAPI.Services.ProductService.DTOs;
 using Core.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections;
 
 namespace CentralizedLoggingAndTracingAPI.Controllers
 {
@@ -29,10 +30,15 @@ namespace CentralizedLoggingAndTracingAPI.Controllers
 
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, "Test");
 
-            await client.SendAsync(requestMessage);
+            var response = await client.SendAsync(requestMessage);
+            var result = await response.Content.ReadAsStringAsync();
+
+            var dictionary = new Dictionary<string, object>();
+            dictionary.Add("Products", list);
+            dictionary.Add("ExternalApiResponse", result);
 
             _logger.LogInformation($"Get all data from api: {list}");
-            return Ok(list);
+            return Ok(dictionary);
         }
 
         [HttpPost]

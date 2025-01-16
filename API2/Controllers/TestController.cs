@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API2.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TestController : ControllerBase
     {
         [HttpGet]
