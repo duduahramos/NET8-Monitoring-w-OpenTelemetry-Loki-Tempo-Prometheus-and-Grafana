@@ -27,8 +27,8 @@ services.AddEndpointsApiExplorer();
 services.AddSingleton(provider => new WebMetrics(provider.GetRequiredService<IMeterFactory>(), builder.Environment.ApplicationName));
 
 // adding a database service with configuration -- connection string read from appsettings.json
-services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("localDb")));
+services.AddDbContext<TenantDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("localDb")));
 
 // Current tenant service with scoped lifetime (created per each request)
 services.AddScoped<ICurrentTenantService, CurrentTenantService>();
