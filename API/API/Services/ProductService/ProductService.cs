@@ -13,7 +13,7 @@ namespace CentralizedLoggingAndTracingAPI.Services.ProductService
         }
 
         // get a list of all products
-        public IEnumerable<Product> GetAllProducts()
+        public List<Product> GetAllProducts()
         {
             var products = _context.Products.ToList();
             return products;

@@ -5,7 +5,7 @@ namespace CentralizedLoggingAndTracingAPI.Services.ProductService
 {
     public interface IProductService
     {
-        IEnumerable<Product> GetAllProducts();
+        List<Product> GetAllProducts();
         Product GetProductById(int id);
         bool CreateProduct(CreateProductRequest request);
         bool DeleteProduct(int id);

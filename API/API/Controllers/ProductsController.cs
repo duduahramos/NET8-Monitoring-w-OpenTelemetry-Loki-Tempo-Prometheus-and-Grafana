@@ -24,7 +24,7 @@ namespace CentralizedLoggingAndTracingAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<Dictionary<string, object>> Get()
         {
             var list = _productService.GetAllProducts();
 
@@ -38,7 +38,7 @@ namespace CentralizedLoggingAndTracingAPI.Controllers
             dictionary.Add("ExternalApiResponse", result);
 
             _logger.LogInformation($"Get all data from api: {list}");
-            return Ok(dictionary);
+            return dictionary;
         }
 
         [HttpPost]

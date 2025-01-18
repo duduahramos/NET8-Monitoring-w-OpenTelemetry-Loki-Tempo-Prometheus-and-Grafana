@@ -1,6 +1,8 @@
 using CentralizedLoggingAndTracingAPI.Controllers;
 using CentralizedLoggingAndTracingAPI.Services.ProductService;
+using CentralizedLoggingAndTracingAPI.Services.ProductService.DTOs;
 using Core.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -24,7 +26,7 @@ namespace API.Tests
                                                               // desirable operations on it.
 
             var mockedHttpClient = Mock.Of<HttpClient>();
-            mockedHttpClient.BaseAddress = new Uri("http://api:5000/api/");
+            mockedHttpClient.BaseAddress = new Uri("http://localhost:8000/api/");
             //_httpClientFactory = Mock.Of<IHttpClientFactory>(); // mocking httpclientfactory this will cause to return createClient() always null, so doing like following way to do .Setup() method call on it and returns mocked HttpClient from it.
             _httpClientFactory = new Mock<IHttpClientFactory>();
             _httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockedHttpClient);
@@ -33,18 +35,32 @@ namespace API.Tests
         }
 
         [TestMethod]
-        public async Task Get_Products_Should_Returns_List_Of_Products()
+        public async Task Get_Method_Should_Return_List_Of_Products()
         {
+            var actualProducts = new List<Product>();
+            _productService.Setup(x => x.GetAllProducts()).Returns(actualProducts).Verifiable();
             var result = await _productsController.Get();
+            var products = (List<Product>)result.FirstOrDefault(x => x.Key == "Products").Value;
+            var response = result.FirstOrDefault(x => x.Key == "ExternalApiResponse").Value;
 
-            var expected = _productService.Setup(x => x.GetAllProducts()).Returns(() => new List<Product>());
-
-            Assert.IsInstanceOfType<IActionResult>(result);
+            Assert.AreEqual(products, actualProducts);
+            Assert.AreEqual(response, "Successful Request");
         }
 
-        //private IEnumerable<Product> Products()
-        //{
-        //    return new List<Product>();
-        //}
+        [TestMethod]
+        [DataRow("Iphone 20 pro max", "I have launched my new iphone!")]
+        public void Post_Method_Should_Create_Product_Successfully(string name, string description)
+        {
+            CreateProductRequest request = new()
+            {
+                Name = name,
+                Description = description
+            };
+
+            _productService.Setup(x => x.CreateProduct(It.IsAny<CreateProductRequest>())).Returns(true).Verifiable();
+            var result = (ObjectResult)_productsController.Post(request);
+
+            Assert.AreEqual(result.StatusCode, StatusCodes.Status200OK);
+        }
     }
 }
