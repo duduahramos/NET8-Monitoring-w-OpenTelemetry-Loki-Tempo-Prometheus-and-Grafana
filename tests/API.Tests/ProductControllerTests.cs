@@ -16,6 +16,7 @@ namespace API.Tests
         private Mock<IHttpClientFactory> _httpClientFactory;
         private Mock<IProductService> _productService;
         private ProductsController _productsController;
+        HttpClient mockedHttpClient = Mock.Of<HttpClient>();
 
         [TestInitialize]
         public void Setup()
@@ -25,8 +26,6 @@ namespace API.Tests
                                                               // behaviour then you must got for Mock<T> so you'll able to do .Setup() and do other
                                                               // desirable operations on it.
 
-            var mockedHttpClient = Mock.Of<HttpClient>();
-            mockedHttpClient.BaseAddress = new Uri("http://localhost:8000/api/");
             //_httpClientFactory = Mock.Of<IHttpClientFactory>(); // mocking httpclientfactory this will cause to return createClient() always null, so doing like following way to do .Setup() method call on it and returns mocked HttpClient from it.
             _httpClientFactory = new Mock<IHttpClientFactory>();
             _httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(mockedHttpClient);
@@ -35,8 +34,11 @@ namespace API.Tests
         }
 
         [TestMethod]
-        public async Task Get_Method_Should_Return_List_Of_Products()
+        [DataRow("http://localhost:8000/api/", "Successful Request")]
+        [DataRow("http://localhost:8000/", "")]
+        public async Task Get_Method_Should_Return_List_Of_Products(string baseAddress, string expectedResponse)
         {
+            mockedHttpClient.BaseAddress = new Uri(baseAddress);
             var actualProducts = new List<Product>();
             _productService.Setup(x => x.GetAllProducts()).Returns(actualProducts).Verifiable();
             var result = await _productsController.Get();
@@ -44,7 +46,7 @@ namespace API.Tests
             var response = result.FirstOrDefault(x => x.Key == "ExternalApiResponse").Value;
 
             Assert.AreEqual(products, actualProducts);
-            Assert.AreEqual(response, "Successful Request");
+            Assert.AreEqual(response, expectedResponse);
         }
 
         [TestMethod]
@@ -61,6 +63,18 @@ namespace API.Tests
             var result = (ObjectResult)_productsController.Post(request);
 
             Assert.AreEqual(result.StatusCode, StatusCodes.Status200OK);
+        }
+
+        [TestMethod]
+        [DataRow(1, true)]
+        public void Delete_Method_Should_Delete_Product(int id, bool expected)
+        {
+            _productService.Setup(x => x.DeleteProduct(It.IsAny<int>())).Returns(true).Verifiable();
+            var result = (ObjectResult)_productsController.Delete(id);
+
+            Assert.IsInstanceOfType<IActionResult>(result);
+            Assert.AreEqual(result.StatusCode, StatusCodes.Status200OK);
+            Assert.AreEqual(result.Value, expected);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace API2.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Successful request");
+            return Ok("Successful Request");
         }
     }
 }
